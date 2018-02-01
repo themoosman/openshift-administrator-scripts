@@ -34,6 +34,7 @@ if [ "$dryrun" = "true" ]; then
     || $4 == "DeadlineExceeded" \
     || $4 == "ContainerCannotRun" \
     || $4 == "Terminating" \
+    || $4 == "Init:Error" \
     {system("bash -c '\''echo namespace: "$1", pod: "$2" '\''")}'
 
   exit 0
@@ -42,11 +43,12 @@ fi
 if [ "$dryrun" = "false" ]; then
   echo "Executing actual delete"
 
-  #Delete all Error, Completed, DeadlineExceeded, or ContainerCannotRun pods.
+  #Delete all Error, Init:Error, Completed, DeadlineExceeded, or ContainerCannotRun pods.
   oc get pods --all-namespaces --no-headers | awk '$4 == "Error" \
     || $4 == "Completed" \
     || $4 == "DeadlineExceeded" \
     || $4 == "ContainerCannotRun" \
+    || $4 == "Init:Error" \
     {system("bash -c '\''oc delete pod -n "$1" "$2" '\''")}'
 
   #Force kill any hanging pods
